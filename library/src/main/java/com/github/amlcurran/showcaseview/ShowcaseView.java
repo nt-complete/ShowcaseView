@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.text.Layout;
@@ -287,9 +288,10 @@ public class ShowcaseView extends RelativeLayout
             Rect showcaseRect = hasShowcaseView() ? showcaseAreaCalculator.getShowcaseRect() : new Rect();
             Rect buttonRect = new Rect();
             if (hasButton()) {
-                mEndButton.getDrawingRect(buttonRect);
+                mEndButton.getHitRect(buttonRect);
             }
             textDrawer.calculateTextPosition(getMeasuredWidth(), getMeasuredHeight(), shouldCentreText, showcaseRect, buttonRect);
+            invalidate();
         }
         hasAlteredText = false;
     }
@@ -740,6 +742,15 @@ public class ShowcaseView extends RelativeLayout
     @Override
     public void setButtonPosition(RelativeLayout.LayoutParams layoutParams) {
         mEndButton.setLayoutParams(layoutParams);
+        hasAlteredText = true;
+        invalidate();
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                recalculateText();
+            }
+        });
     }
 
     /**
