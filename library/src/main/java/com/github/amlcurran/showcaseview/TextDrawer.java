@@ -20,6 +20,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.DrawableRes;
+import android.support.v4.content.ContextCompat;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.SpannableString;
@@ -27,15 +30,18 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.MetricAffectingSpan;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 
 /**
  * Draws the text as required by the ShowcaseView
  */
 class TextDrawer {
+    public static final String TAG = TextDrawer.class.getSimpleName();
 
     private static final int INDEX_TEXT_START_X = 0;
     private static final int INDEX_TEXT_START_Y = 1;
     private static final int INDEX_TEXT_WIDTH = 2;
+    private static final int INDEX_TEXT_HEIGHT = 3;
 
     private final TextPaint titlePaint;
     private final TextPaint textPaint;
@@ -53,7 +59,10 @@ class TextDrawer {
     private DynamicLayout titleLayout;
     private MetricAffectingSpan titleSpan;
 
-    private float[] mBestTextPosition = new float[3];
+    private Drawable image;
+    private float[] bestImagePosition = new float[4];
+
+    private float[] mBestTextPosition = new float[4];
     private boolean hasRecalculated;
     @ShowcaseView.TextPosition
     private int forcedTextPosition = ShowcaseView.UNDEFINED;
@@ -103,6 +112,33 @@ class TextDrawer {
                 }
 
             }
+
+            if (image != null) {
+                canvas.save();
+                float offsetForText = (titleLayout != null ? titleLayout.getHeight() : 0) +
+                        (textLayout != null ? textLayout.getHeight() : 0);
+                canvas.translate(textPosition[INDEX_TEXT_START_X], textPosition[INDEX_TEXT_START_Y] + offsetForText + padding);
+                float widthRatio =  mBestTextPosition[INDEX_TEXT_WIDTH] / image.getIntrinsicWidth();
+                float heightRatio = (mBestTextPosition[INDEX_TEXT_HEIGHT] - offsetForText + (2 * padding)) / image.getIntrinsicHeight();
+
+                bestImagePosition[INDEX_TEXT_START_X] = 0;
+                bestImagePosition[INDEX_TEXT_START_Y] = 0;
+
+                if (widthRatio < heightRatio) {
+                    bestImagePosition[INDEX_TEXT_WIDTH] = image.getIntrinsicWidth() * widthRatio;
+                    bestImagePosition[INDEX_TEXT_HEIGHT] = image.getIntrinsicHeight() * widthRatio;
+                } else {
+                    bestImagePosition[INDEX_TEXT_WIDTH] = image.getIntrinsicWidth() * heightRatio;
+                    bestImagePosition[INDEX_TEXT_HEIGHT] = image.getIntrinsicHeight() * heightRatio;
+                }
+
+                image.setBounds((int) bestImagePosition[INDEX_TEXT_START_X],
+                        (int) bestImagePosition[INDEX_TEXT_START_Y],
+                        (int) (bestImagePosition[INDEX_TEXT_WIDTH] + bestImagePosition[INDEX_TEXT_START_X] - (2 * padding)),
+                        (int) (bestImagePosition[INDEX_TEXT_HEIGHT] + bestImagePosition[INDEX_TEXT_START_Y] - (2 * padding)));
+                image.draw(canvas);
+                canvas.restore();
+            }
         }
         hasRecalculated = false;
     }
@@ -125,6 +161,12 @@ class TextDrawer {
         }
     }
 
+    public void setContentImage(@DrawableRes Integer drawableRes) {
+        if (drawableRes != null) {
+            image = ContextCompat.getDrawable(context, drawableRes);
+            hasRecalculated = true;
+        }
+    }
     /**
      * Calculates the best place to position text
      *  @param canvasW width of the screen
@@ -132,7 +174,7 @@ class TextDrawer {
      * @param shouldCentreText
      * @param showcase
      */
-    public void calculateTextPosition(int canvasW, int canvasH, boolean shouldCentreText, Rect showcase) {
+    public void calculateTextPosition(int canvasW, int canvasH, boolean shouldCentreText, Rect showcase, Rect button) {
 
         int[] areas = new int[4]; //left, top, right, bottom
     	areas[ShowcaseView.LEFT_OF_SHOWCASE] = showcase.left * canvasH;
@@ -156,21 +198,25 @@ class TextDrawer {
     		mBestTextPosition[INDEX_TEXT_START_X] = padding;
     		mBestTextPosition[INDEX_TEXT_START_Y] = padding;
     		mBestTextPosition[INDEX_TEXT_WIDTH] = showcase.left - 2 * padding;
+    		mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (2 * padding);
     		break;
     	case ShowcaseView.ABOVE_SHOWCASE:
     		mBestTextPosition[INDEX_TEXT_START_X] = padding;
     		mBestTextPosition[INDEX_TEXT_START_Y] = padding + actionBarOffset;
     		mBestTextPosition[INDEX_TEXT_WIDTH] = canvasW - 2 * padding;
+            mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (showcase.height() + padding);
     		break;
     	case ShowcaseView.RIGHT_OF_SHOWCASE:
     		mBestTextPosition[INDEX_TEXT_START_X] = showcase.right + padding;
     		mBestTextPosition[INDEX_TEXT_START_Y] = padding;
     		mBestTextPosition[INDEX_TEXT_WIDTH] = (canvasW - showcase.right) - 2 * padding;
+            mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (2 * padding);
     		break;
     	case ShowcaseView.BELOW_SHOWCASE:
     		mBestTextPosition[INDEX_TEXT_START_X] = padding;
     		mBestTextPosition[INDEX_TEXT_START_Y] = showcase.bottom + padding;
     		mBestTextPosition[INDEX_TEXT_WIDTH] = canvasW - 2 * padding;
+            mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (showcase.height() + padding);
     		break;
     	}
     	if(shouldCentreText) {
@@ -195,6 +241,15 @@ class TextDrawer {
 	    			break;
 	    	}
     	}
+
+    	Rect containingRect = new Rect((int) mBestTextPosition[INDEX_TEXT_START_X],
+                (int) mBestTextPosition[INDEX_TEXT_START_Y],
+                (int) (mBestTextPosition[INDEX_TEXT_START_X] + mBestTextPosition[INDEX_TEXT_WIDTH]),
+                (int) (mBestTextPosition[INDEX_TEXT_START_Y] + mBestTextPosition[INDEX_TEXT_HEIGHT]));
+
+    	if (containingRect.contains(button)) {
+
+        }
 
         hasRecalculated = true;
     }

@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.3.2'
     }
 }
 
@@ -70,6 +70,7 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    buildToolsVersion '25.0.3'
 }
 
 def returnDefault(String propertyName) {

@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -224,6 +225,10 @@ public class ShowcaseView extends RelativeLayout
         return (showcaseX != 1000000 && showcaseY != 1000000) && !hasNoTarget;
     }
 
+    public boolean hasButton() {
+        return mEndButton != null && mEndButton.getVisibility() == View.VISIBLE;
+    }
+
     public void setShowcaseX(int x) {
         setShowcasePosition(x, getShowcaseY());
     }
@@ -279,8 +284,12 @@ public class ShowcaseView extends RelativeLayout
         boolean recalculatedCling = showcaseAreaCalculator.calculateShowcaseRect(showcaseX, showcaseY, showcaseDrawer);
         boolean recalculateText = recalculatedCling || hasAlteredText;
         if (recalculateText) {
-            Rect rect = hasShowcaseView() ? showcaseAreaCalculator.getShowcaseRect() : new Rect();
-            textDrawer.calculateTextPosition(getMeasuredWidth(), getMeasuredHeight(), shouldCentreText, rect);
+            Rect showcaseRect = hasShowcaseView() ? showcaseAreaCalculator.getShowcaseRect() : new Rect();
+            Rect buttonRect = new Rect();
+            if (hasButton()) {
+                mEndButton.getDrawingRect(buttonRect);
+            }
+            textDrawer.calculateTextPosition(getMeasuredWidth(), getMeasuredHeight(), shouldCentreText, showcaseRect, buttonRect);
         }
         hasAlteredText = false;
     }
@@ -414,6 +423,12 @@ public class ShowcaseView extends RelativeLayout
         invalidate();
     }
 
+    @Override
+    public void setContentImage(@DrawableRes Integer drawableRes) {
+        textDrawer.setContentImage(drawableRes);
+        invalidate();
+    }
+
     private void setScaleMultiplier(float scaleMultiplier) {
         this.scaleMultiplier = scaleMultiplier;
     }
@@ -525,6 +540,14 @@ public class ShowcaseView extends RelativeLayout
          */
         public Builder setContentText(CharSequence text) {
             showcaseView.setContentText(text);
+            return this;
+        }
+
+        /**
+         * Set the descriptive text shown on the ShowcaseView.
+         */
+        public Builder setContentImage(@DrawableRes int drawableRes) {
+            showcaseView.setContentImage(drawableRes);
             return this;
         }
 

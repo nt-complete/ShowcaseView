@@ -16,6 +16,7 @@
 
 package com.github.amlcurran.showcaseview;
 
+import android.support.annotation.DrawableRes;
 import android.widget.RelativeLayout;
 
 /**
@@ -30,6 +31,8 @@ public interface ShowcaseViewApi {
     void setContentTitle(CharSequence title);
 
     void setContentText(CharSequence text);
+
+    void setContentImage(@DrawableRes Integer drawableRes);
 
     void setButtonPosition(RelativeLayout.LayoutParams layoutParams);
 
