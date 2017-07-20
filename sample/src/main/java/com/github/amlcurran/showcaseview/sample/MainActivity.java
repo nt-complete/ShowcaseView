@@ -79,12 +79,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTarget(target)
                 .setContentTitle(R.string.showcase_main_title)
                 .setContentText(R.string.showcase_main_message)
-                .setContentImage(R.drawable.evolution)
-//                .setContentImage(R.drawable.cat_insta)
+                .setContentImage(R.drawable.cat_insta)
                 .setStyle(R.style.CustomShowcaseTheme2)
                 .setShowcaseEventListener(this)
                 .replaceEndButton(R.layout.view_custom_button)
                 .build();
+        sv.setImageGravity(ShowcaseView.RIGHT);
         sv.setButtonPosition(lps);
     }
 

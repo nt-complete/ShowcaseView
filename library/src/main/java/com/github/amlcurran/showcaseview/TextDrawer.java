@@ -52,6 +52,9 @@ class TextDrawer {
     private final float padding;
     private final float actionBarOffset;
 
+    private float centerX = 0f;
+    private float centerY = 0f;
+
     private Layout.Alignment textAlignment = Layout.Alignment.ALIGN_NORMAL;
     private SpannableString textString;
     private DynamicLayout textLayout;
@@ -69,6 +72,8 @@ class TextDrawer {
     private boolean hasRecalculated;
     @ShowcaseView.TextPosition
     private int forcedTextPosition = ShowcaseView.UNDEFINED;
+    @ShowcaseView.ImageGravity
+    private int imageGravity = 0;
 
     public TextDrawer(Resources resources, Context context) {
         padding = resources.getDimension(R.dimen.text_padding);
@@ -88,12 +93,13 @@ class TextDrawer {
             float[] textPosition = getBestTextPosition();
             int width = Math.max(0, (int) mBestTextPosition[INDEX_TEXT_WIDTH]);
 
+            RectF tRect = new RectF(mBestTextPosition[INDEX_TEXT_START_X],
+                    mBestTextPosition[INDEX_TEXT_START_Y],
+                    mBestTextPosition[INDEX_TEXT_START_X] + mBestTextPosition[INDEX_TEXT_WIDTH],
+                    mBestTextPosition[INDEX_TEXT_START_Y] + mBestTextPosition[INDEX_TEXT_HEIGHT]
+            );
+
             if (DRAW_BACKGROUND) {
-                RectF tRect = new RectF(mBestTextPosition[INDEX_TEXT_START_X],
-                        mBestTextPosition[INDEX_TEXT_START_Y],
-                        mBestTextPosition[INDEX_TEXT_START_X] + mBestTextPosition[INDEX_TEXT_WIDTH],
-                        mBestTextPosition[INDEX_TEXT_START_Y] + mBestTextPosition[INDEX_TEXT_HEIGHT]
-                );
                 Paint tPaint = new Paint();
                 tPaint.setColor(Color.GREEN);
                 tPaint.setStyle(Paint.Style.FILL);
@@ -132,9 +138,11 @@ class TextDrawer {
                 canvas.save();
                 float offsetForText = (titleLayout != null ? titleLayout.getHeight() : 0) +
                         (textLayout != null ? textLayout.getHeight() : 0);
-                canvas.translate(textPosition[INDEX_TEXT_START_X], textPosition[INDEX_TEXT_START_Y] + offsetForText + padding);
+
                 float widthRatio =  mBestTextPosition[INDEX_TEXT_WIDTH] / image.getIntrinsicWidth();
                 float heightRatio = (mBestTextPosition[INDEX_TEXT_HEIGHT] - offsetForText) / image.getIntrinsicHeight();
+
+                tRect.top += offsetForText;
 
                 bestImagePosition[INDEX_TEXT_START_X] = 0;
                 bestImagePosition[INDEX_TEXT_START_Y] = 0;
@@ -147,15 +155,45 @@ class TextDrawer {
                     bestImagePosition[INDEX_TEXT_HEIGHT] = image.getIntrinsicHeight() * heightRatio;
                 }
 
-                image.setBounds((int) bestImagePosition[INDEX_TEXT_START_X],
+                centerX = tRect.centerX();
+                centerY = tRect.centerY();
+
+                float dx = textPosition[INDEX_TEXT_START_X];
+                float dy = textPosition[INDEX_TEXT_START_Y] + offsetForText + padding;
+
+                if (containsFlag(imageGravity, ShowcaseView.CENTER_HORIZONTAL)) {
+                    dx = centerX - (bestImagePosition[INDEX_TEXT_WIDTH] / 2f);
+                }
+
+                if (containsFlag(imageGravity, ShowcaseView.CENTER_VERTICAL)) {
+                    dy = centerY - (bestImagePosition[INDEX_TEXT_HEIGHT] / 2f) + (padding / 2);
+                }
+
+                if (containsFlag(imageGravity, ShowcaseView.BOTTOM)) {
+                    dy = tRect.bottom - bestImagePosition[INDEX_TEXT_HEIGHT] + padding;
+                }
+
+                if (containsFlag(imageGravity, ShowcaseView.RIGHT)) {
+                    dx += mBestTextPosition[INDEX_TEXT_WIDTH] - (bestImagePosition[INDEX_TEXT_WIDTH]);
+                }
+
+                canvas.translate(dx, dy);
+
+                Rect imageRect = new Rect((int) bestImagePosition[INDEX_TEXT_START_X],
                         (int) bestImagePosition[INDEX_TEXT_START_Y],
                         (int) (bestImagePosition[INDEX_TEXT_WIDTH] + bestImagePosition[INDEX_TEXT_START_X]),
                         (int) (bestImagePosition[INDEX_TEXT_HEIGHT] + bestImagePosition[INDEX_TEXT_START_Y] - padding));
+
+                image.setBounds(imageRect);
                 image.draw(canvas);
                 canvas.restore();
             }
         }
         hasRecalculated = false;
+    }
+
+    private boolean containsFlag(int flagSet, int flag) {
+        return (flagSet|flag) == flagSet;
     }
 
     public void setContentText(CharSequence details) {
@@ -284,6 +322,9 @@ class TextDrawer {
 
         }
 
+        centerX = (mBestTextPosition[INDEX_TEXT_WIDTH] / 2.f) + mBestTextPosition[INDEX_TEXT_START_X];
+        centerY = (mBestTextPosition[INDEX_TEXT_HEIGHT] / 2.f) + mBestTextPosition[INDEX_TEXT_START_Y];
+
         hasRecalculated = true;
     }
 
@@ -336,6 +377,10 @@ class TextDrawer {
             throw new IllegalArgumentException("ShowcaseView text was forced with an invalid position");
         }
         forcedTextPosition = textPosition;
+    }
+
+    public void setImageGravity(@ShowcaseView.ImageGravity int imageGravity) {
+        this.imageGravity = imageGravity;
     }
 
     private static class NoOpSpan extends MetricAffectingSpan {

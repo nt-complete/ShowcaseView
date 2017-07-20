@@ -65,6 +65,20 @@ public class ShowcaseView extends RelativeLayout
     public @interface TextPosition {
     }
 
+    public static final int CENTER_VERTICAL = 1;
+    public static final int CENTER_HORIZONTAL = 1 << 1;
+    public static final int CENTER = CENTER_VERTICAL|CENTER_HORIZONTAL;
+    public static final int TOP = 1 << 2;
+    public static final int BOTTOM = 1 << 3;
+    public static final int LEFT = 1 << 4;
+    public static final int RIGHT = 1 << 5;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true,
+            value = {UNDEFINED, CENTER, CENTER_VERTICAL, CENTER_HORIZONTAL, TOP, BOTTOM, LEFT, RIGHT})
+    public @interface ImageGravity {
+    }
+
     private Button mEndButton;
     private final TextDrawer textDrawer;
     private ShowcaseDrawer showcaseDrawer;
@@ -781,6 +795,12 @@ public class ShowcaseView extends RelativeLayout
 
     public void forceTextPosition(@TextPosition int textPosition) {
         textDrawer.forceTextPosition(textPosition);
+        hasAlteredText = true;
+        invalidate();
+    }
+
+    public void setImageGravity(@ImageGravity int imageGravity) {
+        textDrawer.setImageGravity(imageGravity);
         hasAlteredText = true;
         invalidate();
     }
