@@ -49,9 +49,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ShowcaseView sv;
     Button buttonBlocked;
     ListView listView;
-    private RelativeLayout.LayoutParams lps;
-
-    int i = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         buttonBlocked = (Button) findViewById(R.id.buttonBlocked);
         buttonBlocked.setOnClickListener(this);
 
-        lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         int margin = ((Number) (getResources().getDisplayMetrics().density * 12)).intValue();
@@ -79,12 +76,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTarget(target)
                 .setContentTitle(R.string.showcase_main_title)
                 .setContentText(R.string.showcase_main_message)
-                .setContentImage(R.drawable.cat_insta)
                 .setStyle(R.style.CustomShowcaseTheme2)
                 .setShowcaseEventListener(this)
                 .replaceEndButton(R.layout.view_custom_button)
                 .build();
-        sv.setImageGravity(ShowcaseView.RIGHT);
         sv.setButtonPosition(lps);
     }
 
@@ -102,36 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (viewId) {
             case R.id.buttonBlocked:
                 if (sv.isShown()) {
-//                    sv.setStyle(R.style.CustomShowcaseTheme);
-                    i = ++i % 6;
-                    switch (i) {
-                        case 0:
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                            break;
-                        case 1:
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
-                            lps.addRule(RelativeLayout.CENTER_VERTICAL);
-                            break;
-                        case 2:
-                            lps.addRule(RelativeLayout.CENTER_VERTICAL, 0);
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                            break;
-                        case 3:
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                            break;
-                        case 4:
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-                            lps.addRule(RelativeLayout.CENTER_VERTICAL);
-                            break;
-                        case 5:
-                            lps.addRule(RelativeLayout.CENTER_VERTICAL, 0);
-                            lps.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                            break;
-                    }
-
-                    sv.setButtonPosition(lps);
+                    sv.setStyle(R.style.CustomShowcaseTheme);
                 } else {
                     sv.show();
                 }
@@ -193,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private enum DemoOption {
+        SHIFTING_IMAGE(R.string.shifting_image_activity_title, R.string.shifting_image_activity_description, ShiftingImageActivity.class),
         ACTION_ITEMS(R.string.title_action_items, R.string.sum_action_items, ActionItemsSampleActivity.class),
         FRAGMENTS(R.string.title_fragments, R.string.sum_fragments, FragmentDemoActivity.class),
         EVENTS(R.string.title_events, R.string.sum_event, EventsActivity.class),

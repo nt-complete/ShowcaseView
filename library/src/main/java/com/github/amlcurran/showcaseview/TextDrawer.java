@@ -257,7 +257,7 @@ class TextDrawer {
     		mBestTextPosition[INDEX_TEXT_START_X] = padding;
     		mBestTextPosition[INDEX_TEXT_START_Y] = padding + actionBarOffset;
     		mBestTextPosition[INDEX_TEXT_WIDTH] = canvasW - 2 * padding;
-            mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (showcase.height() + padding) - actionBarOffset;
+            mBestTextPosition[INDEX_TEXT_HEIGHT] = canvasH - (showcase.height() + 3*padding) - actionBarOffset;
     		break;
     	case ShowcaseView.RIGHT_OF_SHOWCASE:
     		mBestTextPosition[INDEX_TEXT_START_X] = showcase.right + padding;

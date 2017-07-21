@@ -413,6 +413,12 @@ public class ShowcaseView extends RelativeLayout
         return blocked;
     }
 
+    private static void insertShowcaseViewNoShow(ShowcaseView showcaseView, ViewGroup parent, int parentIndex) {
+        parent.addView(showcaseView, parentIndex);
+        showcaseView.show();
+        showcaseView.hide();
+    }
+
     private static void insertShowcaseView(ShowcaseView showcaseView, ViewGroup parent, int parentIndex) {
         parent.addView(showcaseView, parentIndex);
         if (!showcaseView.hasShot()) {
@@ -494,6 +500,15 @@ public class ShowcaseView extends RelativeLayout
          */
         public ShowcaseView build() {
             insertShowcaseView(showcaseView, parent, parentIndex);
+            return showcaseView;
+        }
+
+        /**
+         * Create the {@link ShowcaseView} but don't show it
+         * @return the created ShowcaseView
+         */
+        public ShowcaseView buildNoShow() {
+            insertShowcaseViewNoShow(showcaseView, parent, parentIndex);
             return showcaseView;
         }
 
