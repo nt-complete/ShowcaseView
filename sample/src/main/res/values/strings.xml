@@ -17,7 +17,7 @@
 
 <resources>
     <string name="app_name">Showcase Sample</string>
-    <string name="button_hide">Change style</string>
+    <string name="button_hide">Change placement</string>
     <string name="button_show">Show</string>
     <string name="title_action_items">Action Items</string>
     <string name="title_action_bar">Action Views</string>
@@ -73,4 +73,13 @@
     <string name="custom_showcase_summary">Implementing your own drawing for a showcase</string>
     <string name="title_events">Events</string>
     <string name="sum_event">Details ShowcaseView lifecycle events</string>
+    <string name="shifting_button">Shifting Button</string>
+    <string name="shifting_image">Shifting Image</string>
+    <string name="shift">Shift</string>
+    <string name="shifting_image_title">Images can be shown with gravity!</string>
+    <string name="shifting_image_body">Clicking the button will change the image\'s gravity.</string>
+    <string name="shifting_button_title">The showcase contents react to the button\'s placement!</string>
+    <string name="shifting_button_body">Watch how the showcase content shifts around the button as it moves.</string>
+    <string name="shifting_image_activity_title">Shifting Image</string>
+    <string name="shifting_image_activity_description">Images can be added to the showcase and will not run over the showcase\'s button</string>
 </resources>

@@ -49,6 +49,7 @@
         <activity android:name="com.github.amlcurran.showcaseview.sample.EventsActivity" />
 
         <activity android:name="com.github.amlcurran.showcaseview.sample.FragmentDemoActivity" />
+        <activity android:name="com.github.amlcurran.showcaseview.sample.ShiftingImageActivity" />
 
     </application>
 </manifest>

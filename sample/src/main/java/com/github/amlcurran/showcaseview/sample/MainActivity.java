@@ -159,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private enum DemoOption {
+        SHIFTING_IMAGE(R.string.shifting_image_activity_title, R.string.shifting_image_activity_description, ShiftingImageActivity.class),
         ACTION_ITEMS(R.string.title_action_items, R.string.sum_action_items, ActionItemsSampleActivity.class),
         FRAGMENTS(R.string.title_fragments, R.string.sum_fragments, FragmentDemoActivity.class),
         EVENTS(R.string.title_events, R.string.sum_event, EventsActivity.class),

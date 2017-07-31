@@ -20,7 +20,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.3.2'
     }
 }
 
@@ -45,6 +45,7 @@ android {
         targetSdkVersion Integer.parseInt(TARGET_SDK)
         minSdkVersion Integer.parseInt(MIN_SDK_LIBRARY)
     }
+    buildToolsVersion '25.0.3'
 }
 
 def parseVersionName() {

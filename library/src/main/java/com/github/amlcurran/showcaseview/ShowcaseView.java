@@ -25,6 +25,8 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.IntDef;
 import android.text.Layout;
 import android.text.TextPaint;
@@ -61,6 +63,20 @@ public class ShowcaseView extends RelativeLayout
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({UNDEFINED, LEFT_OF_SHOWCASE, RIGHT_OF_SHOWCASE, ABOVE_SHOWCASE, BELOW_SHOWCASE})
     public @interface TextPosition {
+    }
+
+    public static final int CENTER_VERTICAL = 1;
+    public static final int CENTER_HORIZONTAL = 1 << 1;
+    public static final int CENTER = CENTER_VERTICAL|CENTER_HORIZONTAL;
+    public static final int TOP = 1 << 2;
+    public static final int BOTTOM = 1 << 3;
+    public static final int LEFT = 1 << 4;
+    public static final int RIGHT = 1 << 5;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(flag = true,
+            value = {UNDEFINED, CENTER, CENTER_VERTICAL, CENTER_HORIZONTAL, TOP, BOTTOM, LEFT, RIGHT})
+    public @interface ImageGravity {
     }
 
     private Button mEndButton;
@@ -224,6 +240,10 @@ public class ShowcaseView extends RelativeLayout
         return (showcaseX != 1000000 && showcaseY != 1000000) && !hasNoTarget;
     }
 
+    public boolean hasButton() {
+        return mEndButton != null && mEndButton.getVisibility() == View.VISIBLE;
+    }
+
     public void setShowcaseX(int x) {
         setShowcasePosition(x, getShowcaseY());
     }
@@ -279,8 +299,13 @@ public class ShowcaseView extends RelativeLayout
         boolean recalculatedCling = showcaseAreaCalculator.calculateShowcaseRect(showcaseX, showcaseY, showcaseDrawer);
         boolean recalculateText = recalculatedCling || hasAlteredText;
         if (recalculateText) {
-            Rect rect = hasShowcaseView() ? showcaseAreaCalculator.getShowcaseRect() : new Rect();
-            textDrawer.calculateTextPosition(getMeasuredWidth(), getMeasuredHeight(), shouldCentreText, rect);
+            Rect showcaseRect = hasShowcaseView() ? showcaseAreaCalculator.getShowcaseRect() : new Rect();
+            Rect buttonRect = new Rect();
+            if (hasButton()) {
+                mEndButton.getHitRect(buttonRect);
+            }
+            textDrawer.calculateTextPosition(getMeasuredWidth(), getMeasuredHeight(), shouldCentreText, showcaseRect, buttonRect);
+            invalidate();
         }
         hasAlteredText = false;
     }
@@ -388,6 +413,12 @@ public class ShowcaseView extends RelativeLayout
         return blocked;
     }
 
+    private static void insertShowcaseViewNoShow(ShowcaseView showcaseView, ViewGroup parent, int parentIndex) {
+        parent.addView(showcaseView, parentIndex);
+        showcaseView.show();
+        showcaseView.hide();
+    }
+
     private static void insertShowcaseView(ShowcaseView showcaseView, ViewGroup parent, int parentIndex) {
         parent.addView(showcaseView, parentIndex);
         if (!showcaseView.hasShot()) {
@@ -411,6 +442,12 @@ public class ShowcaseView extends RelativeLayout
     @Override
     public void setContentText(CharSequence text) {
         textDrawer.setContentText(text);
+        invalidate();
+    }
+
+    @Override
+    public void setContentImage(@DrawableRes Integer drawableRes) {
+        textDrawer.setContentImage(drawableRes);
         invalidate();
     }
 
@@ -463,6 +500,15 @@ public class ShowcaseView extends RelativeLayout
          */
         public ShowcaseView build() {
             insertShowcaseView(showcaseView, parent, parentIndex);
+            return showcaseView;
+        }
+
+        /**
+         * Create the {@link ShowcaseView} but don't show it
+         * @return the created ShowcaseView
+         */
+        public ShowcaseView buildNoShow() {
+            insertShowcaseViewNoShow(showcaseView, parent, parentIndex);
             return showcaseView;
         }
 
@@ -525,6 +571,14 @@ public class ShowcaseView extends RelativeLayout
          */
         public Builder setContentText(CharSequence text) {
             showcaseView.setContentText(text);
+            return this;
+        }
+
+        /**
+         * Set the descriptive text shown on the ShowcaseView.
+         */
+        public Builder setContentImage(@DrawableRes int drawableRes) {
+            showcaseView.setContentImage(drawableRes);
             return this;
         }
 
@@ -717,6 +771,15 @@ public class ShowcaseView extends RelativeLayout
     @Override
     public void setButtonPosition(RelativeLayout.LayoutParams layoutParams) {
         mEndButton.setLayoutParams(layoutParams);
+        hasAlteredText = true;
+        invalidate();
+
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                recalculateText();
+            }
+        });
     }
 
     /**
@@ -747,6 +810,12 @@ public class ShowcaseView extends RelativeLayout
 
     public void forceTextPosition(@TextPosition int textPosition) {
         textDrawer.forceTextPosition(textPosition);
+        hasAlteredText = true;
+        invalidate();
+    }
+
+    public void setImageGravity(@ImageGravity int imageGravity) {
+        textDrawer.setImageGravity(imageGravity);
         hasAlteredText = true;
         invalidate();
     }
